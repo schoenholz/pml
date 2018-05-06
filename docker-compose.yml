@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+    php:
+        build:
+            context: ./docker/php
+        ports:
+            - '80:80'
+            - '443:443'
+        volumes:
+            - ./www:/var/www/html
+        links:
+            - db
+
+    db:
+        build:
+            context: ./docker/db
+        ports:
+            - '3306:3306'
+        volumes:
+            - ./docker/db/lib:/var/lib/mysql
+            - ./docker/db/etc:/etc/mysql/conf.d
+            - ./log/db:/var/log/mysql
+        environment:
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+            MYSQL_DATABASE: $MYSQL_DATABASE
+            MYSQL_USER: $MYSQL_USER
+            MYSQL_PASSWORD: $MYSQL_PASSWORD
+            TZ: Europe/Berlin

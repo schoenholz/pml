@@ -1,0 +1,7 @@
+/.idea
+/docker/db/lib
+/.env
+
+/www/.env
+/www/var/
+/www/vendor/
