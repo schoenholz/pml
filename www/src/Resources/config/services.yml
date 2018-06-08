@@ -5,4 +5,4 @@ services:
         public: false
     App\:
         resource: '../../*'
-        exclude: '../../{Entity,Migrations,Resources,Kernel.php}'
+        exclude: '../../{Entity,Exception,FilterQuery/Fragment,Migrations,Resources,Tests,Kernel.php}'
