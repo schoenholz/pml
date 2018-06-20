@@ -91,4 +91,30 @@ class LibraryFileAttribute
 
         return $this;
     }
+
+    public function getValueFieldName(): string
+    {
+        switch ($this->getType()) {
+            case self::TYPE_BOOL:
+                return 'valueBool';
+
+            case self::TYPE_DATE:
+                return 'valueDate';
+
+            case self::TYPE_DATE_TIME:
+                return 'valueDateTime';
+
+            case self::TYPE_FLOAT:
+                return 'valueFloat';
+
+            case self::TYPE_INT:
+                return 'valueInt';
+
+            case self::TYPE_STRING:
+                return 'valueString';
+
+            default:
+                throw new \RuntimeException(sprintf('Unknown attribute type "%s"', $this->getType()));
+        }
+    }
 }
