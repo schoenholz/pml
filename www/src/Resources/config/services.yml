@@ -5,4 +5,9 @@ services:
         public: false
     App\:
         resource: '../../*'
-        exclude: '../../{Entity,Exception,FilterQuery/Fragment,Migrations,Resources,Tests,Kernel.php}'
+        exclude: '../../{Entity,Exception,FilterQuery/Fragment,Migrations,Resources,Tests,Kernel.php,MediaMonkeyDatabase.php}'
+
+    App\MediaMonkeyDatabase:
+        class: 'App\MediaMonkeyDatabase'
+        arguments:
+            - '@doctrine.dbal.mm_connection'

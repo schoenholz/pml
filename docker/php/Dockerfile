@@ -4,12 +4,14 @@ RUN apt-get update -y && apt-get install -y \
     curl \
     libcurl4-openssl-dev \
     git \
+    libicu-dev \
     locales \
     unzip \
     zlib1g-dev
 
 RUN docker-php-ext-install \
     curl \
+    intl \
     pdo \
     pdo_mysql \
     zip

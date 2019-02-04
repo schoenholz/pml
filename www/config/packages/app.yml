@@ -1,1 +1,29 @@
 app:
+#    meta_plugin:
+#        get_id3:
+#            extraction:
+#                album:
+#                    source:
+#                        - 'tags > id3v2 > album'
+#                        - 'tags > vorbiscomment > album'
+#                        - 'tags > id3v1 > album'
+#                        - 'tags > quicktime > album'
+#                        - 'flac > comments > album'
+#                        - 'flac > VORBIS_COMMENT > comments > album'
+#                date:
+#                    source:
+#                        - 'tags > id3v2 > year'
+#                        - 'tags > id3v1 > year'
+#                        - 'tags > id3v2 > recording_time'
+#                        - 'tags > vorbiscomment > year'
+#                        - 'tags > vorbiscomment > date'
+#                        - 'flac > comments > year'
+#                        - 'flac > comments > date'
+#                        - 'flac > VORBIS_COMMENT > comments > year'
+#                        - 'flac > VORBIS_COMMENT > comments > date'
+#                release_date:
+#                    source:
+#                        - 'tags > vorbiscomment > release date'
+#                        - 'tags > id3v2 > release_time'
+#                        - 'flac > comments > release date'
+#                        - 'flac > VORBIS_COMMENT > comments > release date'

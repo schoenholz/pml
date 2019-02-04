@@ -12,6 +12,7 @@ use App\FilterQuery\Token\OpeningParenthesis;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\RuntimeException;
 
+// todo genre = "" -> genre IS NULL or genre = '' or NOT EXISTS ?   OR   genre ? (<- isset) / genre !? (<- !isset)
 class DqlBuilder
 {
     /**
