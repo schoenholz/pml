@@ -5,7 +5,7 @@ services:
         public: false
     App\:
         resource: '../../*'
-        exclude: '../../{Entity,Exception,FilterQuery/Fragment,Migrations,Resources,Tests,Kernel.php,MediaMonkeyDatabase.php}'
+        exclude: '../../{_*,Entity,Exception,FilterQuery/Fragment,Migrations,Resources,Tests,Kernel.php,MediaMonkeyDatabase.php}'
 
     App\MediaMonkeyDatabase:
         class: 'App\MediaMonkeyDatabase'

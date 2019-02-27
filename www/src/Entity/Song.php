@@ -11,8 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Song
 {
-    const MIN_RATING_CONSIDERED_RELEVANT = 61;
-
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -21,94 +19,24 @@ class Song
     private $id;
 
     /**
-     * @ORM\Column(type="integer", nullable=true, unique=true)
-     */
-    private $mediaMonkeyId;
-
-    /**
-     * @ORM\Column(type="string", length=255, unique=true)
-     */
-    private $filePathName;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $title;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $titleNormalized;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $album;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $publisher;
-
-    /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $year;
+    private $rating = 0;
 
     /**
-     * @ORM\Column(type="date", nullable=true)
+     * @ORM\Column(type="datetime")
      */
-    private $date;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $bitrate;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $samplingFrequency;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $rating;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $ratingDate;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $bestRating;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $bpm;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $initialKey;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $discNumber;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $trackNumber;
+    private $addedDate;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $touchCount;
+    private $daysInLibrary = 1;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $touchCount = 0;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -121,9 +49,24 @@ class Song
     private $lastTouchDate;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $daysBetweenFirstAndLastTouch;
+
+    /**
      * @ORM\Column(type="integer")
      */
-    private $playCount;
+    private $daysSinceFirstTouch = 1;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $daysSinceLastTouch = 1;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $playCount = 0;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -136,9 +79,19 @@ class Song
     private $lastPlayDate;
 
     /**
+     * @ORM\Column(type="float")
+     */
+    private $playedPerTouchQuota = 0;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $playedPerDayBetweenFirstAndLastTouchQuota = 0;
+
+    /**
      * @ORM\Column(type="integer")
      */
-    private $skipCount;
+    private $skipCount = 0;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -151,56 +104,103 @@ class Song
     private $lastSkipDate;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="float")
      */
-    private $addedDate;
+    private $skippedPerTouchQuota = 0;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $skippedPerDayBetweenFirstAndLastTouchQuota = 0;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $ratingScore = 0;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $bestRatingScore = 0;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $firstImportDate;
+    private $bestRatingScoreDate;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $lastTouchDateScore = 0;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $bestLastTouchDateScore = 0;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $lastImportDate;
+    private $bestLastTouchDateScoreDate;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="integer")
      */
-    private $isDeleted;
+    private $playCountScore = 0;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(type="integer")
      */
-    private $deletionDate;
+    private $bestPlayCountScore = 0;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SongArtist", mappedBy="song", orphanRemoval=true)
+     * @ORM\Column(type="datetime")
      */
-    private $songArtists;
+    private $bestPlayCountScoreDate;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SongGenre", mappedBy="song", orphanRemoval=true)
+     * @ORM\Column(type="integer")
      */
-    private $songGenres;
+    private $playedPerTouchScore = 0;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SongTouch", mappedBy="song", orphanRemoval=true)
+     * @ORM\Column(type="integer")
      */
-    private $songTouches;
+    private $bestPlayedPerTouchScore = 0;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\WorkHasSong", mappedBy="song")
+     * @ORM\Column(type="datetime")
      */
-    private $workHasSongs;
+    private $bestPlayedPerTouchScoreDate;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\File", mappedBy="song")
+     */
+    private $files;
 
     public function __construct()
     {
-        $this->songArtists = new ArrayCollection();
-        $this->songGenres = new ArrayCollection();
-        $this->songTouches = new ArrayCollection();
-        $this->workHasSongs = new ArrayCollection();
+        $this->files = new ArrayCollection();
+    }
+
+    public function getPrimaryFile(): File
+    {
+        $primaries = $this
+            ->getFiles()
+            ->filter(function (File $file): bool {
+                return $file->getSongRelation() == File::SONG_RELATION_PRIMARY;
+            })
+        ;
+
+        if ($primaries->isEmpty()) {
+            throw new \RuntimeException(sprintf('Song %d has no primary file', $this->getId()));
+        }
+
+        if ($primaries->count() > 1) {
+            throw new \RuntimeException(sprintf('Song %d has multiple primary files', $this->getId()));
+        }
+
+        return $primaries->first();
     }
 
     public function getId()
@@ -208,316 +208,14 @@ class Song
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTouchCount(): ?int
     {
-        return $this->title;
+        return $this->touchCount;
     }
 
-    public function setTitle(string $title): self
+    public function setTouchCount(int $touchCount): self
     {
-        $this->title = $title;
-
-        return $this;
-    }
-
-    public function getBitrate(): ?int
-    {
-        return $this->bitrate;
-    }
-
-    public function setBitrate(?int $bitrate): self
-    {
-        $this->bitrate = $bitrate;
-
-        return $this;
-    }
-
-    public function getPlayCount(): ?int
-    {
-        return $this->playCount;
-    }
-
-    public function setPlayCount(int $playCount): self
-    {
-        $this->playCount = $playCount;
-
-        return $this;
-    }
-
-    public function getSkipCount(): ?int
-    {
-        return $this->skipCount;
-    }
-
-    public function setSkipCount(int $skipCount): self
-    {
-        $this->skipCount = $skipCount;
-
-        return $this;
-    }
-
-    public function getYear(): ?int
-    {
-        return $this->year;
-    }
-
-    public function setYear(?int $year): self
-    {
-        $this->year = $year;
-
-        return $this;
-    }
-
-    public function getAlbum(): ?string
-    {
-        return $this->album;
-    }
-
-    public function setAlbum(?string $album): self
-    {
-        $this->album = $album;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|SongArtist[]
-     */
-    public function getSongArtists(): Collection
-    {
-        return $this->songArtists;
-    }
-
-    public function addSongArtist(SongArtist $songArtist): self
-    {
-        if (!$this->songArtists->contains($songArtist)) {
-            $this->songArtists[] = $songArtist;
-            $songArtist->setSong($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSongArtist(SongArtist $songArtist): self
-    {
-        if ($this->songArtists->contains($songArtist)) {
-            $this->songArtists->removeElement($songArtist);
-            // set the owning side to null (unless already changed)
-            if ($songArtist->getSong() === $this) {
-                $songArtist->setSong(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getMediaMonkeyId(): ?int
-    {
-        return $this->mediaMonkeyId;
-    }
-
-    public function setMediaMonkeyId(int $mediaMonkeyId): self
-    {
-        $this->mediaMonkeyId = $mediaMonkeyId;
-
-        return $this;
-    }
-
-    public function getRating(): ?int
-    {
-        return $this->rating;
-    }
-
-    public function setRating(?int $rating): self
-    {
-        $this->rating = $rating;
-
-        return $this;
-    }
-
-    public function getFilePathName(): ?string
-    {
-        return $this->filePathName;
-    }
-
-    public function setFilePathName(?string $filePathName): self
-    {
-        $this->filePathName = $filePathName;
-
-        return $this;
-    }
-
-    public function getPublisher(): ?string
-    {
-        return $this->publisher;
-    }
-
-    public function setPublisher(?string $publisher): self
-    {
-        $this->publisher = $publisher;
-
-        return $this;
-    }
-
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(?\DateTimeInterface $date): self
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
-    public function getBpm(): ?int
-    {
-        return $this->bpm;
-    }
-
-    public function setBpm(?int $bpm): self
-    {
-        $this->bpm = $bpm;
-
-        return $this;
-    }
-
-    public function getInitialKey(): ?string
-    {
-        return $this->initialKey;
-    }
-
-    public function setInitialKey(?string $initialKey): self
-    {
-        $this->initialKey = $initialKey;
-
-        return $this;
-    }
-
-    public function getDiscNumber(): ?int
-    {
-        return $this->discNumber;
-    }
-
-    public function setDiscNumber(?int $discNumber): self
-    {
-        $this->discNumber = $discNumber;
-
-        return $this;
-    }
-
-    public function getTrackNumber(): ?int
-    {
-        return $this->trackNumber;
-    }
-
-    public function setTrackNumber(?int $trackNumber): self
-    {
-        $this->trackNumber = $trackNumber;
-
-        return $this;
-    }
-
-    public function getSamplingFrequency(): ?int
-    {
-        return $this->samplingFrequency;
-    }
-
-    public function setSamplingFrequency(?int $samplingFrequency): self
-    {
-        $this->samplingFrequency = $samplingFrequency;
-
-        return $this;
-    }
-
-    public function getFirstImportDate(): ?\DateTimeInterface
-    {
-        return $this->firstImportDate;
-    }
-
-    public function setFirstImportDate(?\DateTimeInterface $firstImportDate): self
-    {
-        $this->firstImportDate = $firstImportDate;
-
-        return $this;
-    }
-
-    public function getLastImportDate(): ?\DateTimeInterface
-    {
-        return $this->lastImportDate;
-    }
-
-    public function setLastImportDate(?\DateTimeInterface $lastImportDate): self
-    {
-        $this->lastImportDate = $lastImportDate;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|SongGenre[]
-     */
-    public function getSongGenres(): Collection
-    {
-        return $this->songGenres;
-    }
-
-    public function addSongGenre(SongGenre $songGenre): self
-    {
-        if (!$this->songGenres->contains($songGenre)) {
-            $this->songGenres[] = $songGenre;
-            $songGenre->setSong($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSongGenre(SongGenre $songGenre): self
-    {
-        if ($this->songGenres->contains($songGenre)) {
-            $this->songGenres->removeElement($songGenre);
-            // set the owning side to null (unless already changed)
-            if ($songGenre->getSong() === $this) {
-                $songGenre->setSong(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getIsDeleted(): ?bool
-    {
-        return $this->isDeleted;
-    }
-
-    public function setIsDeleted(bool $isDeleted): self
-    {
-        $this->isDeleted = $isDeleted;
-
-        return $this;
-    }
-
-    public function getDeletionDate(): ?\DateTimeInterface
-    {
-        return $this->deletionDate;
-    }
-
-    public function setDeletionDate(?\DateTimeInterface $deletionDate): self
-    {
-        $this->deletionDate = $deletionDate;
-
-        return $this;
-    }
-
-    public function getRatingDate(): ?\DateTimeInterface
-    {
-        return $this->ratingDate;
-    }
-
-    public function setRatingDate(?\DateTimeInterface $ratingDate): self
-    {
-        $this->ratingDate = $ratingDate;
+        $this->touchCount = $touchCount;
 
         return $this;
     }
@@ -546,26 +244,50 @@ class Song
         return $this;
     }
 
-    public function getTouchCount(): ?int
+    public function getDaysBetweenFirstAndLastTouch(): ?int
     {
-        return $this->touchCount;
+        return $this->daysBetweenFirstAndLastTouch;
     }
 
-    public function setTouchCount(int $touchCount): self
+    public function setDaysBetweenFirstAndLastTouch(?int $daysBetweenFirstAndLastTouch): self
     {
-        $this->touchCount = $touchCount;
+        $this->daysBetweenFirstAndLastTouch = $daysBetweenFirstAndLastTouch;
 
         return $this;
     }
 
-    public function getAddedDate(): ?\DateTimeInterface
+    public function getDaysSinceFirstTouch(): ?int
     {
-        return $this->addedDate;
+        return $this->daysSinceFirstTouch;
     }
 
-    public function setAddedDate(\DateTimeInterface $addedDate): self
+    public function setDaysSinceFirstTouch(int $daysSinceFirstTouch): self
     {
-        $this->addedDate = $addedDate;
+        $this->daysSinceFirstTouch = $daysSinceFirstTouch;
+
+        return $this;
+    }
+
+    public function getDaysSinceLastTouch(): ?int
+    {
+        return $this->daysSinceLastTouch;
+    }
+
+    public function setDaysSinceLastTouch(int $daysSinceLastTouch): self
+    {
+        $this->daysSinceLastTouch = $daysSinceLastTouch;
+
+        return $this;
+    }
+
+    public function getPlayCount(): ?int
+    {
+        return $this->playCount;
+    }
+
+    public function setPlayCount(int $playCount): self
+    {
+        $this->playCount = $playCount;
 
         return $this;
     }
@@ -594,6 +316,30 @@ class Song
         return $this;
     }
 
+    public function getPlayedPerTouchQuota(): ?float
+    {
+        return $this->playedPerTouchQuota;
+    }
+
+    public function setPlayedPerTouchQuota(float $playedPerTouchQuota): self
+    {
+        $this->playedPerTouchQuota = $playedPerTouchQuota;
+
+        return $this;
+    }
+
+    public function getSkipCount(): ?int
+    {
+        return $this->skipCount;
+    }
+
+    public function setSkipCount(int $skipCount): self
+    {
+        $this->skipCount = $skipCount;
+
+        return $this;
+    }
+
     public function getFirstSkipDate(): ?\DateTimeInterface
     {
         return $this->firstSkipDate;
@@ -618,88 +364,249 @@ class Song
         return $this;
     }
 
-    public function getBestRating(): ?int
+    public function getSkippedPerTouchQuota(): ?float
     {
-        return $this->bestRating;
+        return $this->skippedPerTouchQuota;
     }
 
-    public function setBestRating(?int $bestRating): self
+    public function setSkippedPerTouchQuota(float $skippedPerTouchQuota): self
     {
-        $this->bestRating = $bestRating;
+        $this->skippedPerTouchQuota = $skippedPerTouchQuota;
+
+        return $this;
+    }
+
+    public function getPlayedPerDayBetweenFirstAndLastTouchQuota(): ?float
+    {
+        return $this->playedPerDayBetweenFirstAndLastTouchQuota;
+    }
+
+    public function setPlayedPerDayBetweenFirstAndLastTouchQuota(float $playedPerDayBetweenFirstAndLastTouchQuota): self
+    {
+        $this->playedPerDayBetweenFirstAndLastTouchQuota = $playedPerDayBetweenFirstAndLastTouchQuota;
+
+        return $this;
+    }
+
+    public function getSkippedPerDayBetweenFirstAndLastTouchQuota(): ?float
+    {
+        return $this->skippedPerDayBetweenFirstAndLastTouchQuota;
+    }
+
+    public function setSkippedPerDayBetweenFirstAndLastTouchQuota(float $skippedPerDayBetweenFirstAndLastTouchQuota): self
+    {
+        $this->skippedPerDayBetweenFirstAndLastTouchQuota = $skippedPerDayBetweenFirstAndLastTouchQuota;
+
+        return $this;
+    }
+
+    public function getDaysInLibrary(): ?int
+    {
+        return $this->daysInLibrary;
+    }
+
+    public function setDaysInLibrary(int $daysInLibrary): self
+    {
+        $this->daysInLibrary = $daysInLibrary;
+
+        return $this;
+    }
+
+    public function getAddedDate(): ?\DateTimeInterface
+    {
+        return $this->addedDate;
+    }
+
+    public function setAddedDate(\DateTimeInterface $addedDate): self
+    {
+        $this->addedDate = $addedDate;
+
+        return $this;
+    }
+
+    public function getRatingScore(): ?int
+    {
+        return $this->ratingScore;
+    }
+
+    public function setRatingScore(int $ratingScore): self
+    {
+        $this->ratingScore = $ratingScore;
+
+        return $this;
+    }
+
+    public function getLastTouchDateScore(): ?int
+    {
+        return $this->lastTouchDateScore;
+    }
+
+    public function setLastTouchDateScore(int $lastTouchDateScore): self
+    {
+        $this->lastTouchDateScore = $lastTouchDateScore;
+
+        return $this;
+    }
+
+    public function getPlayCountScore(): ?int
+    {
+        return $this->playCountScore;
+    }
+
+    public function setPlayCountScore(int $playCountScore): self
+    {
+        $this->playCountScore = $playCountScore;
+
+        return $this;
+    }
+
+    public function getPlayedPerTouchScore(): ?int
+    {
+        return $this->playedPerTouchScore;
+    }
+
+    public function setPlayedPerTouchScore(int $playedPerTouchScore): self
+    {
+        $this->playedPerTouchScore = $playedPerTouchScore;
+
+        return $this;
+    }
+
+    public function getBestRatingScore(): ?int
+    {
+        return $this->bestRatingScore;
+    }
+
+    public function setBestRatingScore(int $bestRatingScore): self
+    {
+        $this->bestRatingScore = $bestRatingScore;
+
+        return $this;
+    }
+
+    public function getBestRatingScoreDate(): ?\DateTimeInterface
+    {
+        return $this->bestRatingScoreDate;
+    }
+
+    public function setBestRatingScoreDate(\DateTimeInterface $bestRatingScoreDate): self
+    {
+        $this->bestRatingScoreDate = $bestRatingScoreDate;
+
+        return $this;
+    }
+
+    public function getBestLastTouchDateScore(): ?int
+    {
+        return $this->bestLastTouchDateScore;
+    }
+
+    public function setBestLastTouchDateScore(int $bestLastTouchDateScore): self
+    {
+        $this->bestLastTouchDateScore = $bestLastTouchDateScore;
+
+        return $this;
+    }
+
+    public function getBestLastTouchDateScoreDate(): ?\DateTimeInterface
+    {
+        return $this->bestLastTouchDateScoreDate;
+    }
+
+    public function setBestLastTouchDateScoreDate(\DateTimeInterface $bestLastTouchDateScoreDate): self
+    {
+        $this->bestLastTouchDateScoreDate = $bestLastTouchDateScoreDate;
+
+        return $this;
+    }
+
+    public function getBestPlayCountScore(): ?int
+    {
+        return $this->bestPlayCountScore;
+    }
+
+    public function setBestPlayCountScore(int $bestPlayCountScore): self
+    {
+        $this->bestPlayCountScore = $bestPlayCountScore;
+
+        return $this;
+    }
+
+    public function getBestPlayCountScoreDate(): ?\DateTimeInterface
+    {
+        return $this->bestPlayCountScoreDate;
+    }
+
+    public function setBestPlayCountScoreDate(\DateTimeInterface $bestPlayCountScoreDate): self
+    {
+        $this->bestPlayCountScoreDate = $bestPlayCountScoreDate;
+
+        return $this;
+    }
+
+    public function getBestPlayedPerTouchScore(): ?int
+    {
+        return $this->bestPlayedPerTouchScore;
+    }
+
+    public function setBestPlayedPerTouchScore(int $bestPlayedPerTouchScore): self
+    {
+        $this->bestPlayedPerTouchScore = $bestPlayedPerTouchScore;
+
+        return $this;
+    }
+
+    public function getBestPlayedPerTouchScoreDate(): ?\DateTimeInterface
+    {
+        return $this->bestPlayedPerTouchScoreDate;
+    }
+
+    public function setBestPlayedPerTouchScoreDate(\DateTimeInterface $bestPlayedPerTouchScoreDate): self
+    {
+        $this->bestPlayedPerTouchScoreDate = $bestPlayedPerTouchScoreDate;
+
+        return $this;
+    }
+
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+    public function setRating(?int $rating): self
+    {
+        $this->rating = $rating;
 
         return $this;
     }
 
     /**
-     * @return Collection|SongTouch[]
+     * @return Collection|File[]
      */
-    public function getSongTouches(): Collection
+    public function getFiles(): Collection
     {
-        return $this->songTouches;
+        return $this->files;
     }
 
-    public function addSongTouch(SongTouch $songTouch): self
+    public function addFile(File $file): self
     {
-        if (!$this->songTouches->contains($songTouch)) {
-            $this->songTouches[] = $songTouch;
-            $songTouch->setSong($this);
+        if (!$this->files->contains($file)) {
+            $this->files[] = $file;
+            $file->setSong($this);
         }
 
         return $this;
     }
 
-    public function removeSongTouch(SongTouch $songTouch): self
+    public function removeFile(File $file): self
     {
-        if ($this->songTouches->contains($songTouch)) {
-            $this->songTouches->removeElement($songTouch);
+        if ($this->files->contains($file)) {
+            $this->files->removeElement($file);
             // set the owning side to null (unless already changed)
-            if ($songTouch->getSong() === $this) {
-                $songTouch->setSong(null);
+            if ($file->getSong() === $this) {
+                $file->setSong(null);
             }
         }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|WorkHasSong[]
-     */
-    public function getWorkHasSongs(): Collection
-    {
-        return $this->workHasSongs;
-    }
-
-    public function addWorkHasSong(WorkHasSong $workHasSong): self
-    {
-        if (!$this->workHasSongs->contains($workHasSong)) {
-            $this->workHasSongs[] = $workHasSong;
-            $workHasSong->setSong($this);
-        }
-
-        return $this;
-    }
-
-    public function removeWorkHasSong(WorkHasSong $workHasSong): self
-    {
-        if ($this->workHasSongs->contains($workHasSong)) {
-            $this->workHasSongs->removeElement($workHasSong);
-            // set the owning side to null (unless already changed)
-            if ($workHasSong->getSong() === $this) {
-                $workHasSong->setSong(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getTitleNormalized(): ?string
-    {
-        return $this->titleNormalized;
-    }
-
-    public function setTitleNormalized(string $titleNormalized): self
-    {
-        $this->titleNormalized = $titleNormalized;
 
         return $this;
     }

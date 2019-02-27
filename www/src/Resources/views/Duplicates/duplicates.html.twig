@@ -1,0 +1,62 @@
+{% extends 'default.html.twig' %}
+
+{% block styles %}
+    {{ parent() }}
+
+    <style type="text/css">
+        .merge-link {
+            color: inherit;
+        }
+        .merge-link:hover {
+            text-decoration: none;
+        }
+        .merge-link:visited {
+            color: orangered;
+        }
+    </style>
+{% endblock styles %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h1>Duplicates ({{ duplicates|length }})</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <table class="table table-striped table-hover table-sm">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Artist/title</th>
+                            <th scope="col">A file</th>
+                            <th scope="col">B file</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for duplicate in duplicates %}
+                            <tr class="{{ not duplicate.b_is_synthetic ? 'table-warning' }} {{duplicate.a_is_synthetic and duplicate.b_is_synthetic ? 'table-info' }}">
+                                <td>
+                                    👤&nbsp;{{ duplicate.artist }}<br>
+                                    🎶&nbsp;{{ duplicate.title }}
+                                </td>
+                                <td>
+                                    <a class="merge-link" href="{{ url('app_duplicates.merge', {'songAId': duplicate.a_song_id, 'songBId': duplicate.b_song_id}) }}" target="_blank">
+                                        {{ duplicate.a_is_synthetic ? '✨' }}
+                                        {{ duplicate.a_file_path_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a class="merge-link" href="{{ url('app_duplicates.merge', {'songAId': duplicate.b_song_id, 'songBId': duplicate.a_song_id}) }}" target="_blank">
+                                        {{ duplicate.b_is_synthetic ? '✨' }}
+                                        {{ duplicate.b_file_path_name }}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

@@ -2,11 +2,17 @@
 
 namespace App\Command;
 
-use App\Entity\MediaMonkeySong;
+use App\Entity\File;
+use App\Entity\MetaFile;
+use App\Entity\MetaFileArtist;
+use App\Entity\MetaFileGenre;
+use App\Entity\MetaFileTouch;
+use App\Entity\MetaLib;
 use App\Entity\Song;
-use App\Manager\MediaMonkeyDatabaseManager;
-use App\MediaMonkeyDatabase;
-use App\Repository\MediaMonkeySongRepository;
+use App\Meta\Lib\Manager\MediaMonkeyDatabaseManager;
+use App\MetaFileWriter;
+use App\Repository\LastFmPlaybackRepository;
+use App\Repository\MetaLibRepository;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -22,25 +28,48 @@ class ImportMediaMonkeySongsCommand extends Command
     private $entityManager;
 
     /**
+     * @var MetaLibRepository
+     */
+    private $metaLibRepository;
+
+    /**
      * @var MediaMonkeyDatabaseManager
      */
     private $mediaMonkeyDatabaseManager;
 
     /**
-     * @var MediaMonkeyDatabase
+     * @var MetaLib
      */
-    private $mediaMonkeyDatabase;
+    private $metaLib;
+
+    /**
+     * @var \DateTime
+     */
+    private $lastFmStartDate;
+    /**
+     * @var LastFmPlaybackRepository
+     */
+    private $lastFmPlaybackRepository;
+
+    /**
+     * @var MetaFileWriter
+     */
+    private $metaFileWriter;
 
     public function __construct(
         EntityManagerInterface $entityManager,
+        MetaLibRepository $metaLibRepository,
+        LastFmPlaybackRepository $lastFmPlaybackRepository,
         MediaMonkeyDatabaseManager $mediaMonkeyDatabaseManager,
-        MediaMonkeyDatabase $mediaMonkeyDatabase
+        MetaFileWriter $metaFileWriter
     ) {
         parent::__construct();
 
         $this->entityManager = $entityManager;
+        $this->metaLibRepository = $metaLibRepository;
+        $this->lastFmPlaybackRepository = $lastFmPlaybackRepository;
         $this->mediaMonkeyDatabaseManager = $mediaMonkeyDatabaseManager;
-        $this->mediaMonkeyDatabase = $mediaMonkeyDatabase;
+        $this->metaFileWriter = $metaFileWriter;
     }
 
     protected function configure()
@@ -55,19 +84,29 @@ class ImportMediaMonkeySongsCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $output->writeln('<info>Importing songs from MediaMonkey database.</info>');
-
+        // Setup
+        $this->metaLib = $this->metaLibRepository->requireOneBy('name', 'MediaMonkey 4 Dell Laptop');
         $this->assertDatabaseIsValid();
+        $this->lastFmStartDate = $this->lastFmPlaybackRepository->getMinPlayDate('t1n3f');
 
+        if (!$this->lastFmStartDate) {
+            throw new \RuntimeException('No last.fm play time found. Import last.fm data first.');
+        }
+
+        // Import
         $remoteIds = $this
             ->mediaMonkeyDatabaseManager
             ->fetchSongIds()
         ;
         $totalCount = count($remoteIds);
-        $createdCount = 0;
 
-        /** @var MediaMonkeySongRepository $mediaMonkeySongRepo */
-        $mediaMonkeySongRepo = $this->entityManager->getRepository(MediaMonkeySong::class);
+        $output->writeln(sprintf(
+            '<info>Importing </info><comment>%d</comment><info> songs from MediaMonkey database into meta lib "</info><comment>%s</comment><info>".</info>',
+            $totalCount,
+            $this->metaLib->getName()
+        ));
+
+        $errors = [];
 
         $progressBar = new ProgressBar($output, $totalCount);
         $progressBar->start();
@@ -79,47 +118,70 @@ class ImportMediaMonkeySongsCommand extends Command
                 ->fetchSongData($mediaMonkeyId)
             ;
 
-            $mediaMonkeySong = $mediaMonkeySongRepo->findOneBy([
-                'mediaMonkeyId' => $mediaMonkeyId,
-            ]);
+            // Check if file has the expected path
+            if (mb_strpos($mediaMonkeyData['file_path_name'], $this->metaLib->getRootPath()) !== 0) {
+                $errors[] = sprintf(
+                    'Skipped MediaMonkey song %s: unexpected file path "%s".',
+                    $mediaMonkeyId,
+                    $mediaMonkeyData['file_path_name']
+                );
 
-            if (!$mediaMonkeySong) {
-                $mediaMonkeySong = new MediaMonkeySong();
-                $createdCount ++;
+                continue;
             }
 
-            natcasesort($mediaMonkeyData['artists']);
-            natcasesort($mediaMonkeyData['genres']);
+            $data = [
+                'file_path_name' => ltrim(mb_substr($mediaMonkeyData['file_path_name'], mb_strlen($this->metaLib->getRootPath())), '\/'),
+                'external_id' => $mediaMonkeyId,
+                'is_synthetic' => false,
 
-            $mediaMonkeySong
-                ->setAddedDate($mediaMonkeyData['added_date'])
-                ->setAlbum($mediaMonkeyData['album'])
-                ->setArtist($mediaMonkeyData['artists'])
-                ->setBitrate($mediaMonkeyData['bitrate'])
-                ->setBpm($mediaMonkeyData['bpm'])
-                ->setDate($mediaMonkeyData['date'])
-                ->setDeletionDate(null)
-                ->setDiscNumber($mediaMonkeyData['disc_number'])
-                ->setFilePathName($mediaMonkeyData['file_path_name'])
-                ->setFirstPlayedDate($mediaMonkeyData['first_played_date'])
-                ->setGenre($mediaMonkeyData['genres'])
-                ->setInitialKey($mediaMonkeyData['initial_key'])
-                ->setIsDeleted(false)
-                ->setLastPlayedDate($mediaMonkeyData['last_played_date'])
-                ->setMediaMonkeyId($mediaMonkeyId)
-                ->setPlayCount($mediaMonkeyData['play_count'] ?? 0)
-                ->setPublisher($mediaMonkeyData['publisher'])
-                ->setRating($mediaMonkeyData['rating'])
-                ->setSamplingFrequency($mediaMonkeyData['sampling_frequency'])
-                ->setSkipCount($mediaMonkeyData['skip_count'] ?? 0)
-                ->setTitle($mediaMonkeyData['title'])
-                ->setTrackNumber($mediaMonkeyData['track_number'])
-                ->setYear($mediaMonkeyData['year'])
-            ;
+                'added_date' => $mediaMonkeyData['added_date'],
+                'album' => $mediaMonkeyData['album'],
+                'bitrate' => $mediaMonkeyData['bitrate'],
+                'bpm' => $mediaMonkeyData['bpm'],
+                'date' => $mediaMonkeyData['date'],
+                'disc_number' => $mediaMonkeyData['disc_number'],
+                'initial_key' => $mediaMonkeyData['initial_key'],
+                'music_brainz_id' => null,
+                'publisher' => $mediaMonkeyData['publisher'],
+                'rating' => $mediaMonkeyData['rating'],
+                'sampling_frequency' => $mediaMonkeyData['sampling_frequency'],
+                'title' => $mediaMonkeyData['title'],
+                'track_number' => $mediaMonkeyData['track_number'],
+                'year' => $mediaMonkeyData['year'],
 
-            $this->entityManager->persist($mediaMonkeySong);
-            $this->entityManager->flush();
-            $this->entityManager->clear(MediaMonkeySong::class);
+                'artists' => array_map(function (string $title): array {
+                    return [
+                        'title' => $title,
+                        'music_brainz_id' => null,
+                    ];
+                }, $mediaMonkeyData['artists']),
+                'genres' => $mediaMonkeyData['genres'],
+                'play_dates' => array_map(
+                    function (\DateTime $date): array {
+                        return [
+                            'date' => $date,
+                            'prec' => 0,
+                            'count' => 1,
+                        ];
+                    },
+                    array_filter(
+                        $this->mediaMonkeyDatabaseManager->fetchSongPlayDates($mediaMonkeyId),
+                        function (\DateTime $date) {
+                            return $date < $this->lastFmStartDate;
+                        }
+                    )
+                ),
+                // todo Skips
+            ];
+
+            $this->metaFileWriter->writeMetaFile($this->metaLib, $data);
+
+            $this->entityManager->clear(Song::class);
+            $this->entityManager->clear(File::class);
+            $this->entityManager->clear(MetaFile::class);
+            $this->entityManager->clear(MetaFileArtist::class);
+            $this->entityManager->clear(MetaFileGenre::class);
+            $this->entityManager->clear(MetaFileTouch::class);
         }
 
         $progressBar->finish();
@@ -131,22 +193,30 @@ class ImportMediaMonkeySongsCommand extends Command
             ->createQueryBuilder()
         ;
         $deletedCount = $qb
-            ->update(MediaMonkeySong::class, 'mms')
-            ->set('mms.isDeleted', ':isDeleted')
-            ->set('mms.deletionDate', ':deletionDate')
-            ->where('mms.isDeleted = 0')
-            ->andWhere('mms.mediaMonkeyId NOT IN (:ids)')
+            ->update(MetaFile::class, 'mf')
+            ->set('mf.isDeleted', ':isDeleted')
+            ->set('mf.deletionDate', ':deletionDate')
+            ->where('mf.isDeleted = 0')
+            ->andWhere('mf.externalId NOT IN (:ids)')
+            ->andWhere('mf.metaLib = :metaLib')
             ->setParameters([
                 'ids' => $remoteIds,
                 'isDeleted' => true,
                 'deletionDate' => new \DateTime(),
+                'metaLib' => $this->metaLib,
             ])
             ->getQuery()
             ->execute()
         ;
 
-        $output->writeln(sprintf('Created %d new songs.', $createdCount));
+        $output->writeln(sprintf('Created %d new songs.', $this->metaFileWriter->getMetaFileCreatedCount()));
         $output->writeln(sprintf('Marked %d songs as deleted.', $deletedCount));
+
+        if (!empty($errors)) {
+            $output->writeln(implode("\n", $errors));
+        }
+
+        $output->writeln('Done. 🎉');
     }
 
     private function assertDatabaseIsValid()
@@ -155,66 +225,70 @@ class ImportMediaMonkeySongsCommand extends Command
         $stmtCount = $this
             ->entityManager
             ->getConnection()
-            ->prepare('SELECT COUNT(1) FROM media_monkey_song')
+            ->prepare('SELECT COUNT(1) FROM meta_file WHERE meta_lib_id = :meta_lib_id')
         ;
-        $stmtCount->execute();
+        $stmtCount->execute([
+            'meta_lib_id' => $this->metaLib->getId(),
+        ]);
 
         if ($stmtCount->fetch(FetchMode::COLUMN) == 0) {
             return;
         }
 
-        $stmtMediaMonkey = $this
-            ->mediaMonkeyDatabase
-            ->getConnection()
-            ->prepare('
-                SELECT
-                    MAX(datetime(julianday(Songs.DateAdded) + julianday("1899-12-30"), "localtime")),
-                    MAX(
-                        CASE
-                            WHEN LastTimePlayed > 0 
-                            THEN datetime(julianday(Songs.LastTimePlayed) + julianday("1899-12-30"), "localtime") 
-                            ELSE NULL 
-                        END
-                    )
-                    
-                FROM Songs
-            ')
-        ;
-        $stmtMediaMonkey->execute();
-        list($maxAddedDateMediaMonkey, $maxLastPlayedDateMediaMonkey) = $stmtMediaMonkey->fetch(FetchMode::NUMERIC);
-        $maxAddedDateMediaMonkey = new \DateTime($maxAddedDateMediaMonkey);
-        $maxLastPlayedDateMediaMonkey = new \DateTime($maxLastPlayedDateMediaMonkey);
-
-        $stmtLocal = $this
-            ->entityManager
-            ->getConnection()
-            ->prepare('
-                SELECT 
-                    MAX(added_date),
-                    MAX(last_played_date)
-                    
-                FROM media_monkey_song
-            ')
-        ;
-        $stmtLocal->execute();
-        list($maxAddedDateLocal, $maxLastPlayedDateLocal) = $stmtLocal->fetch(FetchMode::NUMERIC);
-        $maxAddedDateLocal = new \DateTime($maxAddedDateLocal);
-        $maxLastPlayedDateLocal = new \DateTime($maxLastPlayedDateLocal);
-
-        if ($maxAddedDateLocal > $maxAddedDateMediaMonkey) {
-            throw new \RuntimeException(sprintf(
-                'Max added_date is greater in local DB (%s) than in MediaMonkey DB (%s)',
-                $maxAddedDateLocal->format('Y-m-d H:i:s'),
-                $maxAddedDateMediaMonkey->format('Y-m-d H:i:s')
-            ));
-        }
-
-        if ($maxLastPlayedDateLocal > $maxLastPlayedDateMediaMonkey) {
-            throw new \RuntimeException(sprintf(
-                'Max last_played_date is greater in local DB (%s) than in MediaMonkey DB (%s)',
-                $maxLastPlayedDateLocal->format('Y-m-d H:i:s'),
-                $maxLastPlayedDateMediaMonkey->format('Y-m-d H:i:s')
-            ));
-        }
+        // todo Currently a meta file has no last_played_date
+        //// Check last added date and last played date
+        //$stmtMediaMonkey = $this
+        //    ->mediaMonkeyDatabase
+        //    ->getConnection()
+        //    ->prepare('
+        //        SELECT
+        //            MAX(datetime(julianday(Songs.DateAdded) + julianday("1899-12-30"), "localtime")),
+        //            MAX(
+        //                CASE
+        //                    WHEN LastTimePlayed > 0
+        //                    THEN datetime(julianday(Songs.LastTimePlayed) + julianday("1899-12-30"), "localtime")
+        //                    ELSE NULL
+        //                END
+        //            )
+        //
+        //        FROM Songs
+        //    ')
+        //;
+        //$stmtMediaMonkey->execute();
+        //list($maxAddedDateMediaMonkey, $maxLastPlayedDateMediaMonkey) = $stmtMediaMonkey->fetch(FetchMode::NUMERIC);
+        //$maxAddedDateMediaMonkey = new \DateTime($maxAddedDateMediaMonkey);
+        //$maxLastPlayedDateMediaMonkey = new \DateTime($maxLastPlayedDateMediaMonkey);
+        //
+        //$stmtLocal = $this
+        //    ->entityManager
+        //    ->getConnection()
+        //    ->prepare('
+        //        SELECT
+        //            MAX(added_date),
+        //            MAX(last_played_date)
+        //
+        //        FROM media_monkey_song
+        //    ')
+        //;
+        //$stmtLocal->execute();
+        //list($maxAddedDateLocal, $maxLastPlayedDateLocal) = $stmtLocal->fetch(FetchMode::NUMERIC);
+        //$maxAddedDateLocal = new \DateTime($maxAddedDateLocal);
+        //$maxLastPlayedDateLocal = new \DateTime($maxLastPlayedDateLocal);
+        //
+        //if ($maxAddedDateLocal > $maxAddedDateMediaMonkey) {
+        //    throw new \RuntimeException(sprintf(
+        //        'Max added_date is greater in local DB (%s) than in MediaMonkey DB (%s)',
+        //        $maxAddedDateLocal->format('Y-m-d H:i:s'),
+        //        $maxAddedDateMediaMonkey->format('Y-m-d H:i:s')
+        //    ));
+        //}
+        //
+        //if ($maxLastPlayedDateLocal > $maxLastPlayedDateMediaMonkey) {
+        //    throw new \RuntimeException(sprintf(
+        //        'Max last_played_date is greater in local DB (%s) than in MediaMonkey DB (%s)',
+        //        $maxLastPlayedDateLocal->format('Y-m-d H:i:s'),
+        //        $maxLastPlayedDateMediaMonkey->format('Y-m-d H:i:s')
+        //    ));
+        //}
     }
 }

@@ -62,6 +62,15 @@
     "gedmo/doctrine-extensions": {
         "version": "v2.4.34"
     },
+    "guzzlehttp/guzzle": {
+        "version": "6.3.3"
+    },
+    "guzzlehttp/promises": {
+        "version": "v1.3.1"
+    },
+    "guzzlehttp/psr7": {
+        "version": "1.5.2"
+    },
     "james-heinrich/getid3": {
         "version": "v1.9.15"
     },
@@ -83,11 +92,17 @@
     "psr/container": {
         "version": "1.0.0"
     },
+    "psr/http-message": {
+        "version": "1.0.1"
+    },
     "psr/log": {
         "version": "1.0.2"
     },
     "psr/simple-cache": {
         "version": "1.0.1"
+    },
+    "ralouphie/getallheaders": {
+        "version": "2.0.5"
     },
     "stof/doctrine-extensions-bundle": {
         "version": "1.2",
@@ -143,6 +158,9 @@
             "ref": "cc1afd81841db36fbef982fe56b48ade6716fac4"
         }
     },
+    "symfony/form": {
+        "version": "v4.2.3"
+    },
     "symfony/framework-bundle": {
         "version": "3.3",
         "recipe": {
@@ -158,6 +176,12 @@
     "symfony/http-kernel": {
         "version": "v4.0.9"
     },
+    "symfony/inflector": {
+        "version": "v4.2.3"
+    },
+    "symfony/intl": {
+        "version": "v4.2.3"
+    },
     "symfony/lts": {
         "version": "4-dev"
     },
@@ -169,6 +193,9 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
+    },
+    "symfony/options-resolver": {
+        "version": "v4.2.3"
     },
     "symfony/orm-pack": {
         "version": "v1.0.5"
@@ -182,8 +209,14 @@
             "ref": "179470cb6492db92dffee208cfdb436f175c93b4"
         }
     },
+    "symfony/polyfill-intl-icu": {
+        "version": "v1.10.0"
+    },
     "symfony/polyfill-mbstring": {
         "version": "v1.8.0"
+    },
+    "symfony/property-access": {
+        "version": "v4.2.3"
     },
     "symfony/routing": {
         "version": "4.0",
@@ -194,8 +227,23 @@
             "ref": "cda8b550123383d25827705d05a42acf6819fe4e"
         }
     },
+    "symfony/twig-bridge": {
+        "version": "v4.2.3"
+    },
+    "symfony/twig-bundle": {
+        "version": "3.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "3.3",
+            "ref": "369b5b29dc52b2c190002825ae7ec24ab6f962dd"
+        }
+    },
     "symfony/yaml": {
         "version": "v4.0.9"
+    },
+    "twig/twig": {
+        "version": "v2.6.2"
     },
     "zendframework/zend-code": {
         "version": "3.3.0"

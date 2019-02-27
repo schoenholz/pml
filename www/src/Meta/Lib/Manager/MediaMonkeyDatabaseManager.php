@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Manager;
+namespace App\Meta\Lib\Manager;
 
 use App\MediaMonkeyDatabase;
+use Doctrine\DBAL\FetchMode;
 
 class MediaMonkeyDatabaseManager
 {
@@ -193,5 +194,38 @@ class MediaMonkeyDatabaseManager
         ]);
 
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @param int $songId
+     *
+     * @return \DateTime[]|array
+     */
+    public function fetchSongPlayDates(int $songId): array
+    {
+
+        $stmt = $this
+            ->mediaMonkeyDatabase
+            ->getConnection()
+            ->prepare('
+                SELECT
+                    datetime(julianday(PlayDate + UTCOffset) + julianday("1899-12-30"), "localtime") 
+                
+                FROM Played
+                
+                WHERE
+                    IDSong = :id
+                    
+                ORDER BY 
+                    PlayDate + UTCOffset ASC
+            ')
+        ;
+        $stmt->execute([
+            'id' => $songId,
+        ]);
+
+        return array_map(function (string $date) {
+            return new \DateTime($date);
+        }, $stmt->fetchAll(FetchMode::COLUMN));
     }
 }
