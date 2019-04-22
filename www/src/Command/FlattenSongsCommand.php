@@ -66,8 +66,7 @@ class FlattenSongsCommand extends Command
                 
                 INNER JOIN file f_primary
                 ON f_primary.song_id = s.id
-                AND f_primary.song_relation = 'primary'
-                
+
                 INNER JOIN file f_all
                 ON f_all.song_id = s.id
                 

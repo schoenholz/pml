@@ -20,4 +20,29 @@ class MediaMonkeyDatabase
     {
         return $this->connection;
     }
+
+    public function getTables(): array
+    {
+        $stmt = $this
+            ->getConnection()
+            ->prepare("
+                SELECT * 
+                FROM sqlite_master
+                WHERE
+                    type='table'
+            ")
+        ;
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    public function getTableNames(): array
+    {
+        $tables = array_column($this->getTables(), 'name');
+
+        natcasesort($tables);
+
+        return $tables;
+    }
 }

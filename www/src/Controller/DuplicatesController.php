@@ -18,6 +18,7 @@ class DuplicatesController extends AbstractController
      */
     public function duplicates(EntityManagerInterface $entityManager): Response
     {
+        /*
         $stmt = $entityManager->getConnection()->prepare("
             SELECT
                 tmp.a_song_id,
@@ -78,6 +79,53 @@ class DuplicatesController extends AbstractController
             
             ORDER BY
                 GREATEST(f2.id, f1.id) DESC
+        ");
+        */
+        $stmt = $entityManager->getConnection()->prepare("
+            SELECT
+                sdp.song_a_id AS a_song_id,
+                sdp.song_b_id AS b_song_id,
+                sdp.artist,
+                sdp.title,
+                f1.file_path_name AS a_file_path_name,
+                f1.is_synthetic AS a_is_synthetic,
+                f2.file_path_name AS b_file_path_name,
+                f2.is_synthetic AS b_is_synthetic
+            
+            FROM song_duplicate_proposal sdp
+            
+            INNER JOIN file f1
+            ON f1.song_id = sdp.song_a_id
+            AND f1.song_relation = 'primary'
+            
+            INNER JOIN file f2
+            ON f2.song_id = sdp.song_b_id
+            AND f2.song_relation = 'primary'
+            
+            WHERE
+                sdp.is_dismissed = 0
+                AND EXISTS (
+                    SELECT 1
+                    FROM meta_file mf
+                    WHERE
+                        mf.file_id = f1.id
+                        AND mf.is_deleted = 0
+                        -- todo Use only MetaFiles of PRIMARY Lib
+                    LIMIT 1
+                )
+                AND EXISTS (
+                    SELECT 1
+                    FROM meta_file mf
+                    WHERE
+                        mf.file_id = f2.id
+                        AND mf.is_deleted = 0
+                        -- todo Use only MetaFiles of PRIMARY Lib
+                    LIMIT 1
+                )
+                
+            ORDER BY
+                sdp.title,
+                sdp.artist
         ");
         $stmt->execute();
 

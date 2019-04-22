@@ -31,7 +31,7 @@ class MetaFileTouch
     private $type;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $date;
 
@@ -79,7 +79,7 @@ class MetaFileTouch
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(\DateTimeInterface $date = null): self
     {
         $this->date = $date;
 

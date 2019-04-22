@@ -22,19 +22,37 @@ class ArtistSplitter
         $this->entityManager = $entityManager;
     }
 
-    public function split(string $artist): array
+    public function split(string $artist, string $trackTitle = null): array
     {
-        $delims = '(?:\s+feat\.\s+)|'
+        $artists = [];
+
+        // Extract artists from title
+        if ($trackTitle !== null) {
+            $titleArtistsPattern = '/\(\s*(?:featuring|feat\.{0,1}|ft\.)\s+([^)]+)\s*\)/i';
+            preg_match($titleArtistsPattern, $trackTitle, $trackTitleArtists);
+
+            if (!empty($trackTitleArtists[1])) {
+                $artists = $this->split($trackTitleArtists[1]);
+            }
+        }
+
+        $delims = '(?:\s+feat(?:\.)*\s+)|'
+            . '(?:\s+featuring\s+)|'
             . '(?:\s+vs\.\s+)|'
+            . '(?:\s+pres\.\s+)|'
+            . '(?:\s+presents\s+)|'
+            . '(?:\s+and\s+)|'
             . '(?:,)|'
             . '(?:;)|'
-            . '(?:\s+&\s+)'
+            . '(?:\s+&\s+)|'
+            . '(?:\s+x\s+)'
         ;
-        $artists = [];
 
         foreach ($this->getProtectedArtists() as $protectedArtist) {
             if ($artist == $protectedArtist) {
-                return [$artist];
+                $artists[] = $artist;
+
+                return $this->filterArtists($artists);
             } elseif (($pos = mb_strpos($artist, $protectedArtist)) !== false) {
                 $prefix = mb_substr($artist, 0, $pos);
                 $suffix = mb_substr($artist, $pos + mb_strlen($protectedArtist), mb_strlen($artist));
@@ -53,7 +71,7 @@ class ArtistSplitter
                     $artists[] = $protectedArtist;
 
                     if ($prefixIsEmpty && $suffixIsEmpty) {
-                        return $artists;
+                        return $this->filterArtists($artists);
                     } elseif ($prefixIsEmpty) {
                         $artist = mb_substr($suffix, mb_strlen($matchSuffix[0]));
                     } elseif ($suffixIsEmpty) {
@@ -69,7 +87,12 @@ class ArtistSplitter
 
         $chunks = preg_split('/' . $delims . '/i', $artist);
 
-        return array_filter(array_unique(array_map('trim', array_merge($chunks, $artists))), function(string $v): bool {
+        return $this->filterArtists(array_merge($chunks, $artists));
+    }
+
+    protected function filterArtists(array $arr): array
+    {
+        return array_filter(array_unique(array_map('trim', $arr)), function(string $v): bool {
             return $v !== '';
         });
     }

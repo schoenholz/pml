@@ -24,7 +24,7 @@ class Song
     private $rating = 0;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $addedDate;
 
@@ -54,14 +54,14 @@ class Song
     private $daysBetweenFirstAndLastTouch;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
-    private $daysSinceFirstTouch = 1;
+    private $daysSinceFirstTouch;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
-    private $daysSinceLastTouch = 1;
+    private $daysSinceLastTouch;
 
     /**
      * @ORM\Column(type="integer")
@@ -261,7 +261,7 @@ class Song
         return $this->daysSinceFirstTouch;
     }
 
-    public function setDaysSinceFirstTouch(int $daysSinceFirstTouch): self
+    public function setDaysSinceFirstTouch(int $daysSinceFirstTouch = null): self
     {
         $this->daysSinceFirstTouch = $daysSinceFirstTouch;
 
@@ -273,7 +273,7 @@ class Song
         return $this->daysSinceLastTouch;
     }
 
-    public function setDaysSinceLastTouch(int $daysSinceLastTouch): self
+    public function setDaysSinceLastTouch(int $daysSinceLastTouch = null): self
     {
         $this->daysSinceLastTouch = $daysSinceLastTouch;
 
@@ -417,7 +417,7 @@ class Song
         return $this->addedDate;
     }
 
-    public function setAddedDate(\DateTimeInterface $addedDate): self
+    public function setAddedDate(\DateTimeInterface $addedDate = null): self
     {
         $this->addedDate = $addedDate;
 

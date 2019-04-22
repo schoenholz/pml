@@ -24,16 +24,16 @@ class Playlist
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\PlaylistEntry", mappedBy="playlist", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\PlaylistItem", mappedBy="playlist", orphanRemoval=true)
      */
-    private $playlistEntries;
+    private $playlistItems;
 
     public function __construct()
     {
-        $this->playlistEntries = new ArrayCollection();
+        $this->playlistItems = new ArrayCollection();
     }
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -51,30 +51,30 @@ class Playlist
     }
 
     /**
-     * @return Collection|PlaylistEntry[]
+     * @return Collection|PlaylistItem[]
      */
-    public function getPlaylistEntries(): Collection
+    public function getPlaylistItems(): Collection
     {
-        return $this->playlistEntries;
+        return $this->playlistItems;
     }
 
-    public function addPlaylistEntry(PlaylistEntry $playlistEntry): self
+    public function addPlaylistItem(PlaylistItem $playlistItem): self
     {
-        if (!$this->playlistEntries->contains($playlistEntry)) {
-            $this->playlistEntries[] = $playlistEntry;
-            $playlistEntry->setPlaylist($this);
+        if (!$this->playlistItems->contains($playlistItem)) {
+            $this->playlistItems[] = $playlistItem;
+            $playlistItem->setPlaylist($this);
         }
 
         return $this;
     }
 
-    public function removePlaylistEntry(PlaylistEntry $playlistEntry): self
+    public function removePlaylistItem(PlaylistItem $playlistItem): self
     {
-        if ($this->playlistEntries->contains($playlistEntry)) {
-            $this->playlistEntries->removeElement($playlistEntry);
+        if ($this->playlistItems->contains($playlistItem)) {
+            $this->playlistItems->removeElement($playlistItem);
             // set the owning side to null (unless already changed)
-            if ($playlistEntry->getPlaylist() === $this) {
-                $playlistEntry->setPlaylist(null);
+            if ($playlistItem->getPlaylist() === $this) {
+                $playlistItem->setPlaylist(null);
             }
         }
 

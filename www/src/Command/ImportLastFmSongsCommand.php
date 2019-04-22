@@ -131,24 +131,23 @@ class ImportLastFmSongsCommand extends Command
                     $lastFmSong['track_mbid'],
                 ]);
 
-                $artists = array_map(function (string $artistTitle) {
+                $artistTitles = $this->artistSplitter->split($lastFmSong['artist_title'], $lastFmSong['track_title']);
+
+                // Always keep the original artist to prevent from splitting failures
+                if (!in_array($lastFmSong['artist_title'], $artistTitles)) {
+                    $artistTitles[] = $lastFmSong['artist_title'];
+                }
+
+                $artists = array_map(function (string $artistTitle) use ($lastFmSong) {
                     return [
                         'title' => $artistTitle,
-                        'music_brainz_id' => null,
+                        'music_brainz_id' => $artistTitle == $lastFmSong['artist_title'] ? (
+                            !empty($lastFmSong['artist_mbid'])
+                                ? $lastFmSong['artist_mbid']
+                                : null
+                        ) : null,
                     ];
-                }, $this->artistSplitter->split($lastFmSong['artist_title']));
-
-                if (count($artists) > 1) {
-                    $artists[] = [
-                        'title' => $lastFmSong['artist_title'],
-                        'music_brainz_id' => !empty($lastFmSong['artist_mbid']) ? $lastFmSong['artist_mbid'] : null,
-                    ];
-                } else {
-                    $artists = [[
-                        'title' => $lastFmSong['artist_title'],
-                        'music_brainz_id' => !empty($lastFmSong['artist_mbid']) ? $lastFmSong['artist_mbid'] : null,
-                    ]];
-                }
+                }, $artistTitles);
 
                 $data = [
                     'file_path_name' => $id,

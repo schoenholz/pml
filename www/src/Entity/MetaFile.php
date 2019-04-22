@@ -105,7 +105,7 @@ class MetaFile
     private $initialKey;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $addedDate;
 
@@ -340,7 +340,7 @@ class MetaFile
         return $this->addedDate;
     }
 
-    public function setAddedDate(\DateTimeInterface $addedDate): self
+    public function setAddedDate(\DateTimeInterface $addedDate = null): self
     {
         $this->addedDate = $addedDate;
 
