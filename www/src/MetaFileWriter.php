@@ -144,9 +144,19 @@ class MetaFileWriter
 
         $this->writeMetaFileArtists(MetaFileArtist::RELATION_ARTISTS, $metaFile, $data['artists']);
         $this->writeMetaFileGenres($metaFile, $data['genres']);
-        $this->writeMetaFileTouches(MetaFileTouch::TYPE_PLAY, $metaFile, $data['play_dates']);
 
-        // todo Skips
+        if (array_key_exists('play_dates', $data)) {
+            $this->writeMetaFileTouches(MetaFileTouch::TYPE_PLAY, $metaFile, $data['play_dates']);
+        }
+
+        if (array_key_exists('skip_dates', $data)) {
+            $this->writeMetaFileTouches(MetaFileTouch::TYPE_SKIP, $metaFile, $data['skip_dates']);
+        }
+
+        if (array_key_exists('new_skip_dates', $data)) {
+            $this->addMetaFileTouches(MetaFileTouch::TYPE_SKIP, $metaFile, $data['new_skip_dates']);
+        }
+
         // todo Rating history in MetaFileRating
 
         $this->entityManager->flush();

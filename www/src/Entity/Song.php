@@ -24,6 +24,21 @@ class Song
     private $rating = 0;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $ratingScore = 0;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $bestRatingScore = 0;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $bestRatingScoreDate;
+
+    /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $addedDate;
@@ -49,86 +64,6 @@ class Song
     private $lastTouchDate;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $daysBetweenFirstAndLastTouch;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $daysSinceFirstTouch;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $daysSinceLastTouch;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $playCount = 0;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $firstPlayDate;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $lastPlayDate;
-
-    /**
-     * @ORM\Column(type="float")
-     */
-    private $playedPerTouchQuota = 0;
-
-    /**
-     * @ORM\Column(type="float")
-     */
-    private $playedPerDayBetweenFirstAndLastTouchQuota = 0;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $skipCount = 0;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $firstSkipDate;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $lastSkipDate;
-
-    /**
-     * @ORM\Column(type="float")
-     */
-    private $skippedPerTouchQuota = 0;
-
-    /**
-     * @ORM\Column(type="float")
-     */
-    private $skippedPerDayBetweenFirstAndLastTouchQuota = 0;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $ratingScore = 0;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $bestRatingScore = 0;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $bestRatingScoreDate;
-
-    /**
      * @ORM\Column(type="integer")
      */
     private $lastTouchDateScore = 0;
@@ -136,12 +71,7 @@ class Song
     /**
      * @ORM\Column(type="integer")
      */
-    private $bestLastTouchDateScore = 0;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $bestLastTouchDateScoreDate;
+    private $playCount = 0;
 
     /**
      * @ORM\Column(type="integer")
@@ -159,19 +89,69 @@ class Song
     private $bestPlayCountScoreDate;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="datetime", nullable=true)
      */
-    private $playedPerTouchScore = 0;
+    private $firstPlayDate;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastPlayDate;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $playedPerTouchQuota = 0;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $bestPlayedPerTouchScore = 0;
+    private $playedPerTouchQuotaScore = 0;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="integer")
      */
-    private $bestPlayedPerTouchScoreDate;
+    private $skipCount = 0;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $firstSkipDate;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastSkipDate;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $lastSkipDateScore;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $maxPlaybackPercentage;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $maxPlaybackPercentageScore = 0;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $maxPlaybackPercentageDate;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $playbackAggregationPeriodOccurrenceQuota;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $playbackAggregationPeriodOccurrenceQuotaScore = 0;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\File", mappedBy="song")
@@ -240,42 +220,6 @@ class Song
     public function setLastTouchDate(?\DateTimeInterface $lastTouchDate): self
     {
         $this->lastTouchDate = $lastTouchDate;
-
-        return $this;
-    }
-
-    public function getDaysBetweenFirstAndLastTouch(): ?int
-    {
-        return $this->daysBetweenFirstAndLastTouch;
-    }
-
-    public function setDaysBetweenFirstAndLastTouch(?int $daysBetweenFirstAndLastTouch): self
-    {
-        $this->daysBetweenFirstAndLastTouch = $daysBetweenFirstAndLastTouch;
-
-        return $this;
-    }
-
-    public function getDaysSinceFirstTouch(): ?int
-    {
-        return $this->daysSinceFirstTouch;
-    }
-
-    public function setDaysSinceFirstTouch(int $daysSinceFirstTouch = null): self
-    {
-        $this->daysSinceFirstTouch = $daysSinceFirstTouch;
-
-        return $this;
-    }
-
-    public function getDaysSinceLastTouch(): ?int
-    {
-        return $this->daysSinceLastTouch;
-    }
-
-    public function setDaysSinceLastTouch(int $daysSinceLastTouch = null): self
-    {
-        $this->daysSinceLastTouch = $daysSinceLastTouch;
 
         return $this;
     }
@@ -364,42 +308,6 @@ class Song
         return $this;
     }
 
-    public function getSkippedPerTouchQuota(): ?float
-    {
-        return $this->skippedPerTouchQuota;
-    }
-
-    public function setSkippedPerTouchQuota(float $skippedPerTouchQuota): self
-    {
-        $this->skippedPerTouchQuota = $skippedPerTouchQuota;
-
-        return $this;
-    }
-
-    public function getPlayedPerDayBetweenFirstAndLastTouchQuota(): ?float
-    {
-        return $this->playedPerDayBetweenFirstAndLastTouchQuota;
-    }
-
-    public function setPlayedPerDayBetweenFirstAndLastTouchQuota(float $playedPerDayBetweenFirstAndLastTouchQuota): self
-    {
-        $this->playedPerDayBetweenFirstAndLastTouchQuota = $playedPerDayBetweenFirstAndLastTouchQuota;
-
-        return $this;
-    }
-
-    public function getSkippedPerDayBetweenFirstAndLastTouchQuota(): ?float
-    {
-        return $this->skippedPerDayBetweenFirstAndLastTouchQuota;
-    }
-
-    public function setSkippedPerDayBetweenFirstAndLastTouchQuota(float $skippedPerDayBetweenFirstAndLastTouchQuota): self
-    {
-        $this->skippedPerDayBetweenFirstAndLastTouchQuota = $skippedPerDayBetweenFirstAndLastTouchQuota;
-
-        return $this;
-    }
-
     public function getDaysInLibrary(): ?int
     {
         return $this->daysInLibrary;
@@ -460,14 +368,14 @@ class Song
         return $this;
     }
 
-    public function getPlayedPerTouchScore(): ?int
+    public function getPlayedPerTouchQuotaScore(): ?int
     {
-        return $this->playedPerTouchScore;
+        return $this->playedPerTouchQuotaScore;
     }
 
-    public function setPlayedPerTouchScore(int $playedPerTouchScore): self
+    public function setPlayedPerTouchQuotaScore(int $playedPerTouchQuotaScore): self
     {
-        $this->playedPerTouchScore = $playedPerTouchScore;
+        $this->playedPerTouchQuotaScore = $playedPerTouchQuotaScore;
 
         return $this;
     }
@@ -496,30 +404,6 @@ class Song
         return $this;
     }
 
-    public function getBestLastTouchDateScore(): ?int
-    {
-        return $this->bestLastTouchDateScore;
-    }
-
-    public function setBestLastTouchDateScore(int $bestLastTouchDateScore): self
-    {
-        $this->bestLastTouchDateScore = $bestLastTouchDateScore;
-
-        return $this;
-    }
-
-    public function getBestLastTouchDateScoreDate(): ?\DateTimeInterface
-    {
-        return $this->bestLastTouchDateScoreDate;
-    }
-
-    public function setBestLastTouchDateScoreDate(\DateTimeInterface $bestLastTouchDateScoreDate): self
-    {
-        $this->bestLastTouchDateScoreDate = $bestLastTouchDateScoreDate;
-
-        return $this;
-    }
-
     public function getBestPlayCountScore(): ?int
     {
         return $this->bestPlayCountScore;
@@ -540,30 +424,6 @@ class Song
     public function setBestPlayCountScoreDate(\DateTimeInterface $bestPlayCountScoreDate): self
     {
         $this->bestPlayCountScoreDate = $bestPlayCountScoreDate;
-
-        return $this;
-    }
-
-    public function getBestPlayedPerTouchScore(): ?int
-    {
-        return $this->bestPlayedPerTouchScore;
-    }
-
-    public function setBestPlayedPerTouchScore(int $bestPlayedPerTouchScore): self
-    {
-        $this->bestPlayedPerTouchScore = $bestPlayedPerTouchScore;
-
-        return $this;
-    }
-
-    public function getBestPlayedPerTouchScoreDate(): ?\DateTimeInterface
-    {
-        return $this->bestPlayedPerTouchScoreDate;
-    }
-
-    public function setBestPlayedPerTouchScoreDate(\DateTimeInterface $bestPlayedPerTouchScoreDate): self
-    {
-        $this->bestPlayedPerTouchScoreDate = $bestPlayedPerTouchScoreDate;
 
         return $this;
     }
@@ -607,6 +467,78 @@ class Song
                 $file->setSong(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getMaxPlaybackPercentage(): ?float
+    {
+        return $this->maxPlaybackPercentage;
+    }
+
+    public function setMaxPlaybackPercentage(?float $maxPlaybackPercentage): self
+    {
+        $this->maxPlaybackPercentage = $maxPlaybackPercentage;
+
+        return $this;
+    }
+
+    public function getMaxPlaybackPercentageDate(): ?\DateTimeInterface
+    {
+        return $this->maxPlaybackPercentageDate;
+    }
+
+    public function setMaxPlaybackPercentageDate(?\DateTimeInterface $maxPlaybackPercentageDate): self
+    {
+        $this->maxPlaybackPercentageDate = $maxPlaybackPercentageDate;
+
+        return $this;
+    }
+
+    public function getPlaybackAggregationPeriodOccurrenceQuota(): ?float
+    {
+        return $this->playbackAggregationPeriodOccurrenceQuota;
+    }
+
+    public function setPlaybackAggregationPeriodOccurrenceQuota(?float $playbackAggregationPeriodOccurrenceQuota): self
+    {
+        $this->playbackAggregationPeriodOccurrenceQuota = $playbackAggregationPeriodOccurrenceQuota;
+
+        return $this;
+    }
+
+    public function getPlaybackAggregationPeriodOccurrenceQuotaScore(): ?int
+    {
+        return $this->playbackAggregationPeriodOccurrenceQuotaScore;
+    }
+
+    public function setPlaybackAggregationPeriodOccurrenceQuotaScore(int $playbackAggregationPeriodOccurrenceQuotaScore): self
+    {
+        $this->playbackAggregationPeriodOccurrenceQuotaScore = $playbackAggregationPeriodOccurrenceQuotaScore;
+
+        return $this;
+    }
+
+    public function getMaxPlaybackPercentageScore(): ?int
+    {
+        return $this->maxPlaybackPercentageScore;
+    }
+
+    public function setMaxPlaybackPercentageScore(int $maxPlaybackPercentageScore): self
+    {
+        $this->maxPlaybackPercentageScore = $maxPlaybackPercentageScore;
+
+        return $this;
+    }
+
+    public function getLastSkipDateScore(): ?int
+    {
+        return $this->lastSkipDateScore;
+    }
+
+    public function setLastSkipDateScore(int $lastSkipDateScore): self
+    {
+        $this->lastSkipDateScore = $lastSkipDateScore;
 
         return $this;
     }

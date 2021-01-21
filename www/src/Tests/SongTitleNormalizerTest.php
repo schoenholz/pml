@@ -39,6 +39,8 @@ class SongTitleNormalizerTest extends TestCase
             ['foo (album version & edit)', 'foo'],
             ['foo (dj mix)', 'foo'],
             ['foo (dj version)', 'foo'],
+            ['foo (free)', 'foo'],
+            ['foo (free release)', 'foo'],
             ['foo (free track)', 'foo'],
             ['foo (radio single version)', 'foo'],
             ['foo (release edit)', 'foo'],
@@ -49,6 +51,7 @@ class SongTitleNormalizerTest extends TestCase
             ['foo (short edit)', 'foo'],
             ['foo (live edit)', 'foo'],
             ['foo (qore 3.0 - ost)', 'foo'],
+            ['foo (mixed)', 'foo'],
 
             // Lowercase
             ['Foo', 'foo'],
@@ -105,7 +108,7 @@ class SongTitleNormalizerTest extends TestCase
             ['foo (original mix) #TIH', 'foo'],
             ['foo #TIH foo', 'foo #tih foo'],
 
-            ['foo - a state of trance 600 anthem', 'foo'],
+            //['foo - a state of trance 600 anthem', 'foo'],
             ['foo - a state of trance 600 anthem foo', 'foo - a state of trance 600 anthem foo'],
 
             // Anthem
@@ -125,6 +128,7 @@ class SongTitleNormalizerTest extends TestCase
             ['foo (bar extended mix)', 'foo (bar mix)'],
             ['foo (bar radio mix)', 'foo (bar mix)'],
             ['foo (bar extended edit)', 'foo (bar edit)'],
+            ['foo (bar extended remix)', 'foo (bar remix)'],
             ['foo (bar radio edit)', 'foo (bar edit)'],
             ['foo (w&w radio edit)', 'foo (w&w edit)'],
             ['foo (bar remix edit)', 'foo (bar remix)'],
@@ -139,6 +143,8 @@ class SongTitleNormalizerTest extends TestCase
             ['foo (bar baz remix - album version)', 'foo (bar baz remix)'],
             ['foo (bar baz remix - album edit)', 'foo (bar baz remix)'],
             ['foo (bar baz remix - album mix)', 'foo (bar baz remix)'],
+            ['foo (bar baz remix - explicit)', 'foo (bar baz remix)'],
+            ['foo (bar baz rmx - explicit)', 'foo (bar baz remix)'],
             ['foo (bar baz mix- edit)', 'foo (bar baz mix)'],
             ['foo (bar baz mix- pro mix)', 'foo (bar baz mix)'],
             ['foo (bar baz remix- edit)', 'foo (bar baz remix)'],
@@ -147,8 +153,14 @@ class SongTitleNormalizerTest extends TestCase
             ['foo (bar baz remix- album edit)', 'foo (bar baz remix)'],
             ['foo (bar baz remix- album mix)', 'foo (bar baz remix)'],
             ['foo / bar', 'foo/bar'],
+            ['foo /bar', 'foo/bar'],
+            ['foo/ bar', 'foo/bar'],
             ['foo:bar', 'foo: bar'],
             ['foo…', 'foo...'],
+            ['foo (bar rmx)', 'foo (bar remix)'],
+            ['foo (barrmx)', 'foo (barrmx)'],
+            ['foo (bar-rmx)', 'foo (bar-rmx)'],
+            ['foo (bar rmxtar)', 'foo (bar rmxtar)'],
 
             //['foo (bonus track)', 'foo'],
             //['foo (classic bonus track)', 'foo'],

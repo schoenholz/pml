@@ -4,6 +4,7 @@ namespace App\Meta\Lib\Manager;
 
 use App\MediaMonkeyDatabase;
 use Doctrine\DBAL\FetchMode;
+use Doctrine\ORM\EntityNotFoundException;
 
 class MediaMonkeyDatabaseManager
 {
@@ -203,6 +204,9 @@ class MediaMonkeyDatabaseManager
      */
     public function fetchSongPlayDates(int $songId): array
     {
+        // todo Filter by lower bound
+
+        // todo Check the UTC offset thing.
 
         $stmt = $this
             ->mediaMonkeyDatabase
@@ -227,5 +231,29 @@ class MediaMonkeyDatabaseManager
         return array_map(function (string $date) {
             return new \DateTime($date);
         }, $stmt->fetchAll(FetchMode::COLUMN));
+    }
+
+    public function fetchPlaylistId(string $name): int
+    {
+        $stmtPlaylistId = $this
+            ->mediaMonkeyDatabase
+            ->getConnection()
+            ->prepare('
+                SELECT IDPlaylist
+                FROM Playlists
+                WHERE
+                    PlaylistName = :name COLLATE NOCASE
+            ')
+        ;
+        $stmtPlaylistId->execute([
+            'name' => $name,
+        ]);
+        $playlistId = $stmtPlaylistId->fetch(FetchMode::COLUMN);
+
+        if (empty($playlistId)) {
+            throw new EntityNotFoundException(sprintf('Playlist "%s" not found', $name));
+        }
+
+        return $playlistId;
     }
 }

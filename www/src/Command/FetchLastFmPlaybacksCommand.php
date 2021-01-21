@@ -27,6 +27,11 @@ class FetchLastFmPlaybacksCommand extends Command
      */
     private $lastFmPlaybackRepository;
 
+    /**
+     * @var OutputInterface
+     */
+    private $output;
+
     public function __construct(
         UserApi $userApi,
         EntityManagerInterface $entityManager,
@@ -51,6 +56,8 @@ class FetchLastFmPlaybacksCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
+        $this->output = $output;
+
         $fetches = 0;
         $maxFetches = 300;
         $maxFetchDate = new \DateTime('now');
@@ -67,7 +74,7 @@ class FetchLastFmPlaybacksCommand extends Command
                 break;
             }
 
-            $output->writeln(sprintf('Fetching from %s to %s (%d).', $fromDate->format('Y-m-d H:i'), $toDate->format('Y-m-d H:i'), $fetches));
+            $this->output->writeln(sprintf('Fetching from %s to %s (%d).', $fromDate->format('Y-m-d H:i'), $toDate->format('Y-m-d H:i'), $fetches));
 
             $res = $this->userApi->getWeeklyTrackChart($user, $fromDate, $toDate)['weeklytrackchart'];
             $reportFromDate = new \DateTime();
@@ -76,7 +83,7 @@ class FetchLastFmPlaybacksCommand extends Command
             $reportToDate->setTimestamp($res['@attr']['to']);
 
             foreach ($res['track'] as $track) {
-                $output->write('.');
+                $this->output->write('.');
                 $lastFmPlayback = new LastFmPlayback();
                 $lastFmPlayback
                     ->setUser($res['@attr']['user'])
@@ -96,7 +103,7 @@ class FetchLastFmPlaybacksCommand extends Command
             }
 
             if (!empty($res['track'])) {
-                $output->writeln('');
+                $this->output->writeln('');
             }
 
             $fromDate->add($precision);
@@ -117,6 +124,8 @@ class FetchLastFmPlaybacksCommand extends Command
         $checkFrom = clone $checkTo;
         $checkFrom->sub($integrityCheckPrecision);
 
+        $this->output->writeln(sprintf('Checking play count between %s and %s...', $checkFrom->format('Y-m-d H:i:s'), $checkTo->format('Y-m-d H:i:s')));
+
         $localCount = $this->lastFmPlaybackRepository->getPlayCount($user, $checkFrom, $checkTo);
         $res = $this->userApi->getWeeklyTrackChart($user, $checkFrom, $checkTo)['weeklytrackchart'];
 
@@ -128,6 +137,13 @@ class FetchLastFmPlaybacksCommand extends Command
         if ($remoteCount == $localCount) {
             return $maxPlaybackDate;
         }
+
+        $this->output->writeln(sprintf(
+            'Clearing playbacks after %s: local play count %d does not match remote count %d',
+            $checkFrom->format('Y-m-d H:i:s'),
+            $localCount,
+            $remoteCount
+        ));
 
         // Remote count does not match local count.
         $this

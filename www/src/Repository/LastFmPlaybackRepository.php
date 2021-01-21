@@ -52,7 +52,7 @@ class LastFmPlaybackRepository extends ServiceEntityRepository
             SELECT SUM(count)
             FROM last_fm_playback
             WHERE
-                date >= :from
+                date > :from
                 AND date <= :to
                 AND user = :user
         ");

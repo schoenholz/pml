@@ -32,7 +32,7 @@ class PlaylistManager
     ) {
         // Find or create playlist
         $playlist = $this->playlistRepository->findOneBy([
-            'name' => 'Duplicates',
+            'name' => $name,
         ]);
 
         if (!$playlist) {

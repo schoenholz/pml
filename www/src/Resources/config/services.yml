@@ -5,9 +5,102 @@ services:
         public: false
     App\:
         resource: '../../*'
-        exclude: '../../{_*,Entity,Exception,FilterQuery/Fragment,Migrations,Resources,Tests,Kernel.php,MediaMonkeyDatabase.php}'
+        # todo Cleanup
+        exclude: '../../{_*,Entity,Exception,FilterQuery/Fragment,Migrations,Resources,Tests,Kernel.php}'
+
+    App\Command\UpdateSongsCommand:
+        arguments:
+            - !tagged 'app.task.song'
 
     App\MediaMonkeyDatabase:
         class: 'App\MediaMonkeyDatabase'
         arguments:
             - '@doctrine.dbal.mm_connection'
+
+    App\Task\Song\UpdateAddedDate:
+        tags:
+            - { name: 'app.task.song', priority: 10 }
+
+    App\Task\Song\UpdateDaysInLibrary:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdateFirstTouchDate:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdateLastTouchDate:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdateLastTouchDateScore:
+        tags:
+            - { name: 'app.task.song', priority: -10 }
+
+    App\Task\Song\UpdateTouchCount:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdatePlayCount:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdatePlayCountScore:
+        tags:
+            - { name: 'app.task.song', priority: -10 }
+
+    App\Task\Song\UpdateSkipCount:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdateFirstPlayDate:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdateFirstSkipDate:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdateLastPlayDate:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdateLastSkipDate:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdateLastSkipDateScore:
+        tags:
+            - { name: 'app.task.song', priority: -10 }
+
+    App\Task\Song\UpdateRating:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdateMaxPlaybackPercentage:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdateMaxPlaybackPercentageScore:
+        tags:
+            - { name: 'app.task.song', priority: -10 }
+
+    App\Task\Song\UpdatePlayedPerTouchQuota:
+        tags:
+            - { name: 'app.task.song', priority: -10 }
+
+    App\Task\Song\UpdatePlayedPerTouchQuotaScore:
+        tags:
+            - { name: 'app.task.song', priority: -20 }
+
+    App\Task\Song\UpdateRatingScore:
+        tags:
+            - { name: 'app.task.song', priority: -10 }
+
+    App\Task\Song\UpdatePlaybackAggregationPeriodOccurrenceQuota:
+        tags:
+            - { name: 'app.task.song', priority: 0 }
+
+    App\Task\Song\UpdatePlaybackAggregationPeriodOccurrenceQuotaScore:
+        tags:
+            - { name: 'app.task.song', priority: -10 }

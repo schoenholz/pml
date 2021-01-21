@@ -167,12 +167,22 @@ class ImportMediaMonkeySongsCommand extends Command
                     array_filter(
                         $this->mediaMonkeyDatabaseManager->fetchSongPlayDates($mediaMonkeyId),
                         function (\DateTime $date) {
+                            // todo Whitelist (excluding) 2019-08-17 Aug 17:48 and 2019-08-19 10:16 (Scrobbler downtime)
                             return $date < $this->lastFmStartDate;
                         }
                     )
                 ),
-                // todo Skips
             ];
+
+            // Skips
+            $newSkips = $mediaMonkeyData['skip_count'] - $this->getSkipCount($mediaMonkeyId);
+            if ($newSkips > 0) {
+                $data['new_skip_dates'][] = [
+                    'date' => new \DateTime(),
+                    'prec' => 0, // todo Fix precision
+                    'count' => $newSkips,
+                ];
+            }
 
             $this->metaFileWriter->writeMetaFile($this->metaLib, $data);
 
@@ -290,5 +300,29 @@ class ImportMediaMonkeySongsCommand extends Command
         //        $maxLastPlayedDateMediaMonkey->format('Y-m-d H:i:s')
         //    ));
         //}
+    }
+
+    private function getSkipCount(int $mediaMonkeyId): int
+    {
+        $stmt = $this->entityManager->getConnection()->prepare("
+            SELECT IFNULL(SUM(mft.count), 0)
+    
+            FROM meta_file mf
+            
+            INNER JOIN meta_file_touch mft
+            ON mft.meta_file_id = mf.id
+            
+            WHERE
+                mf.meta_lib_id = :meta_lib_id
+                AND mf.external_id = :media_monkey_id
+                AND mft.type = :type
+        ");
+        $stmt->execute([
+            'meta_lib_id' => $this->metaLib->getId(),
+            'media_monkey_id' => $mediaMonkeyId,
+            'type' => MetaFileTouch::TYPE_SKIP,
+        ]);
+
+        return $stmt->fetchColumn();
     }
 }

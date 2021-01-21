@@ -12,27 +12,33 @@ class SongTitleNormalizer
     private $additions = [
         'album edit',
         'album mix',
+        'album version & edit',
         'album version explicit',
         'album version',
-        'album version & edit',
+        'clean edit',
         'clean',
+        'dj edit',
         'dj mix',
         'dj version',
         'edit version',
         'edit',
+        'explicit edit',
         'explicit version',
         'explicit',
         'extended mix',
         'extended version',
         'extended',
         'free track',
+        'free release',
         'free',
         'full length dj mix',
         'full length dj version',
         'full',
+        'live edit',
         'live',
         'mastered',
         'mix cut',
+        'mixed',
         'orig',
         'original edit',
         'original mix edit',
@@ -40,21 +46,17 @@ class SongTitleNormalizer
         'original version',
         'original',
         'pro mix',
+        'qore 3.0 - ost',
         'radio edit',
         'radio single version',
         'radio version',
         're-mastered',
-        'remastered',
-        'streaming version',
-        'streaming edit',
         'release edit',
-        'live edit',
+        'remastered',
         'short edit',
-        'clean edit',
         'single edit',
-        'dj edit',
-        'explicit edit',
-        'qore 3.0 - ost',
+        'streaming edit',
+        'streaming version',
     ];
 
     private $suffixes = [
@@ -78,28 +80,32 @@ class SongTitleNormalizer
             'remix edit)' => 'remix)',
         ]);
 
-        foreach ([
-            '/\s*\(feat\. [^)]+\)/' => '', // Strip "feat."
-            '/\s*\(ft\. [^)]+\)/' => '', // Strip "ft."
-            '/\s+(\))/' => '\\1', // Remove whitespace before ")"
-            '/(\()\s+/' => '\\1', // Remove whitespace after "("
-            '/\s*\(abgt\d+\)/' => '', // Remove "ABGT ..." addition
-            '/(?<=[^\(]\s)(?:extended|radio) (mix|edit\))/' => '\\1', // (bar extended|radio mix|edit) -> (bar mix)
-            '/(?<=[^\(]\s)extended (club mix\))/' => '\\1', // (bar extended club mix) -> (bar club mix)
-            '/(\()(?:extended )([\w\s]+ mix\))/' => '\\1\\2', // (extended club mix) -> (club mix)
-            '/(\()live at [\w\s]+\)/' => '', // Strip "(live at foo bar)"
-        ] as $pattern => $replacement) {
-            $t = preg_replace($pattern, $replacement, $t);
-        }
-
         // Additions
         foreach ($this->additions as $addition) {
             $pattern = '/\(' . preg_quote($addition, '/') . '\)/';
             $t = preg_replace($pattern, '', $t);
 
             // Strip "(... - edit|pro mix)"
-            $pattern = '/(\([^(]+) - (?:' . preg_quote($addition, '/') . ')(\))/';
+            $pattern = '/(\([^(]+)\s*- (?:' . preg_quote($addition, '/') . ')(\))/';
             $t = preg_replace($pattern, '\\1\\2', $t);
+        }
+
+        foreach ([
+            '/\s*\(feat\. [^)]+\)/' => '', // Strip "feat."
+            '/\s*\(ft\. [^)]+\)/' => '', // Strip "ft."
+            '/\s+(\))/' => '\\1', // Remove whitespace before ")"
+            '/(\()\s+/' => '\\1', // Remove whitespace after "("
+            '/\s*\(abgt\d+\)/' => '', // Remove "ABGT ..." addition
+            '/(?<=[^\(]\s)(?:extended|radio) (remix|mix|edit\))/' => '\\1', // (bar extended|radio mix|edit) -> (bar mix)
+            '/(?<=[^\(]\s)extended (club mix\))/' => '\\1', // (bar extended club mix) -> (bar club mix)
+            '/(\()(?:extended )([\w\s]+ mix\))/' => '\\1\\2', // (extended club mix) -> (club mix)
+            '/(\()live at [\w\s]+\)/' => '', // Strip "(live at foo bar)"
+            '/\s*\/\s*/' => '/', // " / " -> "/"
+            '/\s*:\s*/' => ': ', // ":" -> ": "
+            '/(\(.+ )rmx(\))/' => '\\1 remix\\2', // "(... rmx)" -> "(... remix)"
+            '/(\(.+ mix) edit(\))/' => '\\1\\2', // "(... mix edit) -> "(... mix)"
+        ] as $pattern => $replacement) {
+            $t = preg_replace($pattern, $replacement, $t);
         }
 
         // Suffixes
